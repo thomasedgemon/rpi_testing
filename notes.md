@@ -79,6 +79,10 @@ probably devise some scheme that would let it run for weeks
 or months, technically it cannot run forever. so with that, lets just focus on squeezing speed out of this bad boy. 
 
 
+generic segmented sieve took 290ms to find all primes less than one million on four core i7-7500 and 32gb ram. 
+
+
+
 
 
 
