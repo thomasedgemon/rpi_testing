@@ -15,7 +15,7 @@ or one of my one liter cluster computers, but i thought it was more interesting 
 and optimization with the hardware itself. trial by c plus plus fire. 
 
 so i bought a raspberry pi zero, which i think is the smallest sbc they make that accepts a flash drive.
-ill explain that in a minute. the zero has a single core 1ghz cpu and 512mb of ram. 
+ill explain that in a minute. the zero has a single core 1ghz cpu and 512mb of ram and less than a mb of L1 cache. 
 
 so the main question i wanted to answer was how much performance i could get out of an extremely small, low-powered computer, 
 with a secondary consideration of storing all the primes it found. if you've watched my previous videos, you
@@ -26,7 +26,7 @@ and had chatgpt write a cpp script on a single core to find primes. i left it in
 let it run all night. 
 
 but i am an impatient man. so when i got home, i had gpt write a python script with the same algorithm on 
-three cores of a 2.4GHz i5-7500. after 30 minutes, it found 666 million primes and took up 7.5 gigs 
+three cores of a 2.4GHz i5-7500. after 30 minutes, it found 666 million primes (or about 22 million per minute) and took up 7.5 gigs 
 of an uncompressed text file with one prime per line.
 
 knowing very little about number theory, especially with respect to primes and their theorems,
@@ -67,8 +67,6 @@ multiple of two. add it to the prime list, and remove its multiples. you continu
 is exhausted. with each iteration, you are checking against fewer and fewer numbers, which makes this 
 an incredibly fast exact algo for large sets of numbers. now, where the segmentation comes in: 
 
-
-
 but back to our indefinite run question. let me ruin the party just a little. no, it cannot run forever.
 and heres why: with any exact algorithm, you must test at minimum some subset of the numbers less than the
 number youre testing. even if, in the slowest possible configuration, you were to test one number at a time,
@@ -78,8 +76,48 @@ or memory dense it could possibly be, to store them. there is no free lunch. so,
 probably devise some scheme that would let it run for weeks
 or months, technically it cannot run forever. so with that, lets just focus on squeezing speed out of this bad boy. 
 
+dessert first: 
+generic sieve found 54 million primes in 10s on a four core i7-7500 (2.4ghz) and 32gb ram with no optimizations whatsoever.
+segmented sieve highly optimized segmented sieve found 74 million primes in 10s on the raspberry pi zero 2w.
 
-generic segmented sieve took 290ms to find all primes less than one million on four core i7-7500 and 32gb ram. 
+i started out with a half dozen varieties of a sieve: unsegmented, segmented, incorporating hardware limitations, etc, 
+but given vibecode and cpp noob status, it was too much to troubleshoot, so i ended up just going with the one which 
+seemed the most reliable and fastest. 
+
+i'll talk abput all of the optimizations i did in a moment, but lets skip a little ahead and talk about data validation.
+since i dont know cpp nearly well enough to inspect the code directly, my low iq solution was to make another version of the
+scipt which searched until it found 250k primes, saved them all to a text file, stopped searching, and turned around and checked each
+of those numbers for primality. and every single number passed, so it stands to reason that all 74 million would as well. the algorithm
+cannot become more unreliable with time. at worst, it can somehow drop a prime. all of that to say i'm confident in the number,
+although at the outset, knowing next to nothing, i think 10 million primes would have impressed me.
+
+but back to the algorithm. 
+
+we already talked about what segmentation is. for this, we made the segments small enough to fit in L1 cache, which requires 
+much fewer cpu cycles to access than L2 or ram. 
+
+we skipped all even numbers. pretty straightforward.
+
+multithreading: splitting up a "job" across threads while minimizing as much as possible the overhead multithreading
+introduces. all threads are also working from the same set of primes, so no prime is computed more than once.
+
+bit packing: in each segment, we map a number to a bit, which means that for several sub-processes,
+we can work with a bit rather than a byte, before finally going back to the integer itself. 
+
+popcount: in the aforementioned mapping from integers to bits, we can count how many are prime
+in a single instruction. this is a feature at the hardware level. 
+
+with respect to the compile command flags themselves:
+
+we compile specifically for this type of cpu
+
+we enable SIMD processes (single instruction, multiple data) like in our mapping from integers 
+to bits. we can clear all bits at once, rather than one by one. 
+
+-03 flag: aggressively optimizes the code for vectorization and predictive branching. 
+
+
+
 
 
 
