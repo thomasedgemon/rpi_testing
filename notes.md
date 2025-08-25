@@ -14,8 +14,8 @@ rather than trying to tune a script on my very powewrful work computer, or my re
 or one of my one liter cluster computers, but i thought it was more interesting to enforce performance 
 and optimization with the hardware itself. trial by c plus plus fire. 
 
-so i bought a raspberry pi zero, which i think is the smallest sbc they make that accepts a flash drive.
-ill explain that in a minute. the zero has a single core 1ghz cpu and 512mb of ram and less than a mb of L1 cache. 
+so i bought a raspberry pi zero, which i think is the smallest sbc they make that has wifi, which i needed in order to
+ssh into it. the zero has a single core 1ghz cpu and 512mb of ram and less than a mb of L1 cache. 
 
 so the main question i wanted to answer was how much performance i could get out of an extremely small, low-powered computer, 
 with a secondary consideration of storing all the primes it found. if you've watched my previous videos, you
@@ -25,7 +25,8 @@ while i waited it for jeffrey bezos to deliver it, i cracked open my ancient t48
 and had chatgpt write a cpp script on a single core to find primes. i left it in my office, said good night, and
 let it run all night. 
 
-but i am an impatient man. so when i got home, i had gpt write a python script with the same algorithm on 
+but i am an impatient man. so when i got home, i had gpt write a python script with the same algorithm on my
+main development computer, 
 three cores of a 2.4GHz i5-7500. after 30 minutes, it found 666 million primes (or about 22 million per minute) and took up 7.5 gigs 
 of an uncompressed text file with one prime per line.
 
@@ -76,13 +77,20 @@ or memory dense it could possibly be, to store them. there is no free lunch. so,
 probably devise some scheme that would let it run for weeks
 or months, technically it cannot run forever. so with that, lets just focus on squeezing speed out of this bad boy. 
 
+at the end of the day, i decided to just power it from a regular wall outlet with mini-hdmi, which is where i was setting it up, anyhow.
+i only ended up running it for about ten seconds at a time, so power regularity wasn't any issue. 
+
 dessert first: 
-generic sieve found 54 million primes in 10s on a four core i7-7500 (2.4ghz) and 32gb ram with no optimizations whatsoever.
+generic sieve found 54 million primes in 10s on my aforementioned dev computer with no optimizations whatsoever.
 segmented sieve highly optimized segmented sieve found 74 million primes in 10s on the raspberry pi zero 2w.
 
 i started out with a half dozen varieties of a sieve: unsegmented, segmented, incorporating hardware limitations, etc, 
 but given vibecode and cpp noob status, it was too much to troubleshoot, so i ended up just going with the one which 
 seemed the most reliable and fastest. 
+
+BUT, before anyone looks at the code, yes, it was vibe-coded. my spare time is limited, and i dont have the time to learn
+cpp this deeply and quickly for a very small personal project. and, as anyone who has done enough vibe coding knows, it's not without
+its hassles. gpt and claude struggle and have to be corrected constantly. AGI when???
 
 i'll talk abput all of the optimizations i did in a moment, but lets skip a little ahead and talk about data validation.
 since i dont know cpp nearly well enough to inspect the code directly, my low iq solution was to make another version of the
@@ -115,6 +123,7 @@ we enable SIMD processes (single instruction, multiple data) like in our mapping
 to bits. we can clear all bits at once, rather than one by one. 
 
 -03 flag: aggressively optimizes the code for vectorization and predictive branching. 
+
 
 
 
