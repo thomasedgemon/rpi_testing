@@ -124,6 +124,13 @@ to bits. we can clear all bits at once, rather than one by one.
 
 -03 flag: aggressively optimizes the code for vectorization and predictive branching. 
 
+lastly, just for fun, i overlocked it after adding a heatsink and a gpio-powered fan. 
+i was able to get it up to 1.35ghz, and any further caused stability issues.  
+at 1.35, the cpp script was able to find 90 million
+primes in ten seconds. 74 to 90 is not nothing, about 20 percent. not bad!
+
+but thats all i got. i hope it was interesting. thank you for watching!
+
 
 
 
